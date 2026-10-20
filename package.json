@@ -1,0 +1,45 @@
+{
+  "name": "julian-proxy",
+  "version": "1.0.0",
+  "description": "Bridge the OpenAI Responses API to OkeyMeta/Julian Chat Completions, so streaming clients (Codex CLI, etc.) can use OkeyMeta as a model provider.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "src/index.mjs",
+  "bin": {
+    "julian-proxy": "bin/julian-proxy.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node src/index.mjs",
+    "dev": "node --watch src/index.mjs",
+    "test": "node --test",
+    "lint": "node --check src/index.mjs && node --check src/server.mjs && node --check src/upstream.mjs && node --check src/translate-request.mjs && node --check src/translate-response.mjs && node --check src/config.mjs && node --check bin/julian-proxy.mjs"
+  },
+  "keywords": [
+    "openai",
+    "responses-api",
+    "codex",
+    "okeymeta",
+    "julian",
+    "proxy",
+    "sse",
+    "openai-compatible"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/olly-techie/julian-proxy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/olly-techie/julian-proxy/issues"
+  },
+  "homepage": "https://github.com/olly-techie/julian-proxy#readme",
+  "packageManager": "pnpm@12.14.0"
+}

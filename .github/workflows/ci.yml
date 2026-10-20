@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ["20", "22", "24"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (parse check)
+        run: pnpm run lint
+
+      - name: Test
+        run: pnpm test
+
+  docker:
+    name: docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: julian-proxy:ci
+      - name: Smoke test /health
+        run: |
+          docker run -d --name jp -p 8788:8788 julian-proxy:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8788/health; then echo; exit 0; fi
+            sleep 1
+          done
+          echo "container never became healthy" && docker logs jp && exit 1
+      - if: always()
+        run: docker rm -f jp || true
